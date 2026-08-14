@@ -1,0 +1,25 @@
+participant_id,wave,synthetic_flag,excerpt,candidate_code
+SYN001,1,True,The event made my old assumptions about fairness feel impossible to hold.,belief_violation
+SYN002,2,True,"I had a clear goal for my life, and suddenly that future was gone.",goal_violation
+SYN003,3,True,I kept asking what this experience meant and whether my life still had direction.,meaning_search
+SYN004,4,True,Prayer helped me reinterpret the event without pretending it was good.,positive_religious_coping
+SYN005,1,True,For a while I felt abandoned by God and angry during worship.,spiritual_struggle
+SYN006,2,True,"I began to see that the event was part of my story, but not the whole story.",meaning_reconstruction
+SYN007,3,True,"My priorities changed, and relationships became more important than achievement.",changed_priorities
+SYN008,4,True,"I still remember the stress, but I can imagine a future again.",recovery_future_orientation
+SYN009,1,True,The event made my old assumptions about fairness feel impossible to hold.,belief_violation
+SYN010,2,True,"I had a clear goal for my life, and suddenly that future was gone.",goal_violation
+SYN011,3,True,I kept asking what this experience meant and whether my life still had direction.,meaning_search
+SYN012,4,True,Prayer helped me reinterpret the event without pretending it was good.,positive_religious_coping
+SYN013,1,True,For a while I felt abandoned by God and angry during worship.,spiritual_struggle
+SYN014,2,True,"I began to see that the event was part of my story, but not the whole story.",meaning_reconstruction
+SYN015,3,True,"My priorities changed, and relationships became more important than achievement.",changed_priorities
+SYN016,4,True,"I still remember the stress, but I can imagine a future again.",recovery_future_orientation
+SYN017,1,True,The event made my old assumptions about fairness feel impossible to hold.,belief_violation
+SYN018,2,True,"I had a clear goal for my life, and suddenly that future was gone.",goal_violation
+SYN019,3,True,I kept asking what this experience meant and whether my life still had direction.,meaning_search
+SYN020,4,True,Prayer helped me reinterpret the event without pretending it was good.,positive_religious_coping
+SYN021,1,True,For a while I felt abandoned by God and angry during worship.,spiritual_struggle
+SYN022,2,True,"I began to see that the event was part of my story, but not the whole story.",meaning_reconstruction
+SYN023,3,True,"My priorities changed, and relationships became more important than achievement.",changed_priorities
+SYN024,4,True,"I still remember the stress, but I can imagine a future again.",recovery_future_orientation

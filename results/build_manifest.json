@@ -1,0 +1,14 @@
+{
+  "project": "meaning-pathways",
+  "generated_on": "2026-08-15",
+  "synthetic_participants": 320,
+  "waves": 4,
+  "core_methods": [
+    "longitudinal CFA/measurement invariance",
+    "latent growth curve model",
+    "RI-CLPM",
+    "serial longitudinal mediation",
+    "moderated mediation"
+  ],
+  "note": "No real participant data."
+}

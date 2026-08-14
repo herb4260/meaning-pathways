@@ -1,0 +1,9 @@
+cff-version: 1.2.0
+title: "Meaning Pathways"
+message: "If you reuse this research-software prototype, please cite the repository."
+type: software
+authors:
+  - family-names: "Yun"
+    given-names: "Minhyeong"
+year: 2026
+license: MIT
