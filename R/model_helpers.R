@@ -65,7 +65,11 @@ add_scale_scores <- function(dat) {
 
 fit_row <- function(name, fit) {
   fm <- fitMeasures(fit, c("chisq", "df", "cfi", "tli", "rmsea", "srmr", "aic", "bic"))
-  data.frame(model = name, t(fm), check.names = FALSE)
+  out <- data.frame(model = name, stringsAsFactors = FALSE)
+  for (nm in names(fm)) {
+    out[[nm]] <- as.numeric(unname(fm[[nm]]))
+  }
+  out
 }
 
 write_standardized_paths <- function(fit, path) {
