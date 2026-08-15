@@ -1,9 +1,5 @@
-.Rhistory
-.RData
-.Rproj.user/
-.DS_Store
+data/generated/
+results/generated/
 __pycache__/
+.pytest_cache/
 *.pyc
-results/*.rds
-data/demo/meaning_pathways_longitudinal.csv
-figures/recovery_trajectories.png

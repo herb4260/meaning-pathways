@@ -1,64 +1,19 @@
-import csv, math, random
 from pathlib import Path
-
-SEED = 4260
-N = 320
-WAVES = 4
-ROOT = Path(__file__).resolve().parents[1]
-OUT = ROOT / 'data' / 'demo' / 'meaning_pathways_longitudinal.csv'
-
-FIELDS = ['participant_id','synthetic_flag','age','gender','stressor_type','months_since_stressor_t1','baseline_stressor_severity','baseline_religiosity']
-for stem in ['mv_belief1','mv_belief2','mv_goal1','mv_goal2','meaning1','meaning2','meaning3','meaning4','prc1','prc2','prc3','prc4','struggle1','struggle2','struggle3','struggle4','recovery1','recovery2','recovery3','recovery4']:
-    for t in range(1, WAVES+1): FIELDS.append(f'{stem}_t{t}')
-for t in range(1, WAVES+1): FIELDS.append(f'wave{t}_observed')
-for stem in ['mv','meaning','prc','struggle','recovery']:
-    for t in range(1, WAVES+1): FIELDS.append(f'{stem}_t{t}')
-
-def clip(x, lo=1.0, hi=7.0): return max(lo, min(hi, x))
-def item(mu, rng): return round(clip(mu + rng.gauss(0, .72)), 2)
-def mean(xs): return round(sum(xs)/len(xs), 3)
-
-def generate_rows(seed=SEED, n=N):
-    rng = random.Random(seed)
-    rows=[]
-    stressors=['bereavement','health','relationship','occupational','disaster_or_accident','other']
-    genders=['woman','man','nonbinary_or_other']
-    for i in range(1,n+1):
-        sev=clip(rng.gauss(5.0,1.0)); rel=clip(rng.gauss(4.4,1.4)); age=max(18,min(70,round(rng.gauss(39,10))))
-        mv=clip(2.2 + .55*sev + rng.gauss(0,.65)); meaning=clip(5.2 - .33*mv + .10*rel + rng.gauss(0,.6)); prc=clip(2.0 + .32*rel + .15*mv + rng.gauss(0,.65)); struggle=clip(1.8 + .38*mv - .10*rel + rng.gauss(0,.7)); recovery=clip(3.1 + .35*meaning - .28*mv - .18*struggle + rng.gauss(0,.65))
-        latent={1:(mv,meaning,prc,struggle,recovery)}
-        for t in range(2,5):
-            pmv,pmean,pprc,pstr,prec=latent[t-1]
-            mv=clip(.61*pmv - .10*pmean + rng.gauss(0,.55))
-            prc=clip(.58*pprc + .15*pmv + .08*rel + rng.gauss(0,.55))
-            struggle=clip(.62*pstr + .13*mv - .06*pmean + rng.gauss(0,.55))
-            meaning=clip(.52*pmean - .22*pmv + .14*prc - .10*pstr + 1.8 + rng.gauss(0,.5))
-            recovery=clip(.48*prec + .31*meaning - .24*mv + .10*prc - .18*struggle + 1.1 + rng.gauss(0,.5))
-            latent[t]=(mv,meaning,prc,struggle,recovery)
-        obs=[True, i<=300, i<=285, i<=265]
-        row={'participant_id':f'SYN{i:03d}','synthetic_flag':True,'age':age,'gender':rng.choices(genders,[.49,.49,.02])[0],'stressor_type':rng.choice(stressors),'months_since_stressor_t1':round(rng.uniform(1,3),1),'baseline_stressor_severity':round(sev,2),'baseline_religiosity':round(rel,2)}
-        item_names=['mv_belief1','mv_belief2','mv_goal1','mv_goal2','meaning1','meaning2','meaning3','meaning4','prc1','prc2','prc3','prc4','struggle1','struggle2','struggle3','struggle4','recovery1','recovery2','recovery3','recovery4']
-        for t in range(1,5):
-            mv,meaning,prc,struggle,recovery=latent[t]
-            centers=[mv]*4+[meaning]*4+[prc]*4+[struggle]*4+[recovery]*4
-            vals=[]
-            for name,center in zip(item_names,centers):
-                v=item(center,rng) if obs[t-1] else ''
-                row[f'{name}_t{t}']=v
-                vals.append(v)
-            row[f'wave{t}_observed']=obs[t-1]
-            for stem,start in [('mv',0),('meaning',4),('prc',8),('struggle',12),('recovery',16)]:
-                block=vals[start:start+4]
-                row[f'{stem}_t{t}']=mean(block) if obs[t-1] else ''
-        rows.append(row)
-    return rows
-
-def write_csv(path=OUT):
-    path.parent.mkdir(parents=True, exist_ok=True)
-    rows=generate_rows()
-    with path.open('w',newline='',encoding='utf-8') as f:
-        w=csv.DictWriter(f,fieldnames=FIELDS); w.writeheader(); w.writerows(rows)
-    return path
-
-if __name__=='__main__':
-    p=write_csv(); print(f'Wrote {N} synthetic participants to {p}')
+import numpy as np,pandas as pd
+ROOT=Path(__file__).resolve().parents[1]; SEED=20260816
+clip=lambda x:np.clip(x,1,7); logistic=lambda x:1/(1+np.exp(-x))
+def generate(seed=SEED,n=420,n_fac=28):
+ r=np.random.default_rng(seed); fac=r.integers(1,n_fac+1,n); fs=r.normal(0,.35,n_fac+1); trait=r.normal(0,.55,n); st=r.normal(0,.45,n); active=np.ones(n,bool); rows=[]; pdist=clip(r.normal(3,.7,n)); pstig=clip(r.normal(3.7,.75,n))
+ for w,m in enumerate([0,12,24,36],1):
+  t=w-1; org=clip(3.55+.5*fs[fac]+.35*trait+.25*t+r.normal(0,.55,n)); acute=r.poisson(.55+.16*t+.1*np.maximum(trait,0),n); sup=clip(4.55+.55*st-.18*fs[fac]+r.normal(0,.55,n)); peer=clip(4.75+.4*st+r.normal(0,.5,n)); stigma=clip(3.75+.28*org-.26*sup-.15*peer+.18*pstig+r.normal(0,.55,n)); distress=clip(2.25+.34*pdist+.30*org+.17*acute-.24*sup-.12*peer-.015*org*sup+.28*trait+r.normal(0,.55,n)); burnout=clip(1.55+.5*distress+.25*org-.16*sup+r.normal(0,.48,n)); ptsd=clip(1.45+.34*distress+.28*acute+.08*org+r.normal(0,.58,n)); hs=r.binomial(1,logistic(-1.5+.34*distress-.30*stigma+.20*sup+.12*peer)); si=r.binomial(1,logistic(-4.3+.52*distress+.16*burnout+.12*ptsd)); overtime=np.maximum(0,r.normal(16+5*org+3*acute,8,n)).round(1); sick=r.poisson(np.maximum(.2,.35+.28*distress+.1*burnout)); crit=r.poisson(.3+.2*acute); turn=np.zeros(n,int)
+  if w>1: turn=((r.random(n)<logistic(-4.20+.28*org+.20*burnout-.22*sup+.08*t))&active).astype(int)
+  for i in np.where(active)[0]: rows.append([f'JWP{i+1:04d}',f'F{fac[i]:02d}',w,m,acute[i],org[i],sup[i],peer[i],stigma[i],distress[i],burnout[i],ptsd[i],si[i],hs[i],overtime[i],sick[i],crit[i],turn[i]])
+  active &= turn==0
+  if w<4: active &= ~(r.random(n)<(.025+.01*t))
+  pdist,pstig=distress,stigma
+ cols='person_id facility_id wave months acute_exposure org_stress supervisor_support peer_support stigma distress burnout ptsd suicidal_ideation help_seeking overtime_hours sick_days critical_incidents turnover_event'.split(); return pd.DataFrame(rows,columns=cols)
+def interviews(df,seed=SEED):
+ r=np.random.default_rng(seed+9); themes={'stigma':'People say support exists, but I still worry that asking for help changes how coworkers see me.','organizational_distrust':'Policies can feel unpredictable from one supervisor to another.','supervisor_support':'My supervisor checks in after difficult incidents and makes it easier to speak up early.','peer_support':'The people on my shift understand the work, and talking with them helps me reset.','workload':'Overtime and short staffing make it hard to recover before the next shift.','critical_incident':'Some incidents stay with you after the shift ends.','help_seeking_access':'Confidential and clear services make help feel more realistic.'}; keys=list(themes); s=df[df.wave.isin([2,4])].sample(120,random_state=seed); out=[]
+ for _,x in s.iterrows():
+  p=np.array([x.stigma,x.org_stress,x.supervisor_support,x.peer_support,x.org_stress,min(7,2*x.acute_exposure+1),8-x.stigma]); p=p/p.sum(); ch=[keys[j] for j in r.choice(7,2,False,p=p)]; out.append({'person_id':x.person_id,'wave':int(x.wave),'excerpt':' '.join(themes[k] for k in ch),'themes':'|'.join(ch)})
+ return pd.DataFrame(out)
