@@ -29,5 +29,7 @@ fit <- sem(
   bootstrap = 2000,
   fixed.x = FALSE
 )
+assert_model_ok("serial_longitudinal_mediation", fit)
 write.csv(fit_row("serial_longitudinal_mediation", fit), "results/mediation_fit.csv", row.names = FALSE)
 write_standardized_paths(fit, "results/mediation_paths.csv")
+cat("Longitudinal mediation complete.\n")

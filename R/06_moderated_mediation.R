@@ -33,5 +33,7 @@ fit <- sem(
   bootstrap = 2000,
   fixed.x = FALSE
 )
+assert_model_ok("moderated_serial_mediation", fit)
 write.csv(fit_row("moderated_serial_mediation", fit), "results/moderated_mediation_fit.csv", row.names = FALSE)
 write_standardized_paths(fit, "results/moderated_mediation_paths.csv")
+cat("Moderated mediation complete.\n")

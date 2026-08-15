@@ -33,6 +33,7 @@ fit <- sem(
   meanstructure = TRUE,
   fixed.x = FALSE
 )
+assert_model_ok("recovery_lgcm", fit)
 write.csv(fit_row("recovery_lgcm", fit), "results/latent_growth_fit.csv", row.names = FALSE)
 write_standardized_paths(fit, "results/latent_growth_paths.csv")
 cat("Latent growth model complete.\n")

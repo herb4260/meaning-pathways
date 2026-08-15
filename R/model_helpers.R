@@ -63,9 +63,48 @@ add_scale_scores <- function(dat) {
   dat
 }
 
+model_diagnostics <- function(name, fit, variance_tol = 1e-6) {
+  pe <- parameterEstimates(fit)
+  variance_rows <- pe$op == "~~" & pe$lhs == pe$rhs & !is.na(pe$est)
+  negative_rows <- variance_rows & pe$est < -variance_tol
+  lv_names <- lavNames(fit, type = "lv")
+  negative_lv_rows <- negative_rows & pe$lhs %in% lv_names
+  variance_estimates <- pe$est[variance_rows]
+
+  data.frame(
+    model = name,
+    converged = isTRUE(lavInspect(fit, "converged")),
+    post_check = suppressWarnings(isTRUE(lavInspect(fit, "post.check"))),
+    negative_variances = sum(negative_rows, na.rm = TRUE),
+    negative_lv_variances = sum(negative_lv_rows, na.rm = TRUE),
+    min_variance = if (length(variance_estimates) > 0) min(variance_estimates, na.rm = TRUE) else NA_real_,
+    stringsAsFactors = FALSE
+  )
+}
+
+assert_model_ok <- function(name, fit, variance_tol = 1e-6) {
+  diag <- model_diagnostics(name, fit, variance_tol = variance_tol)
+  if (!diag$converged[[1]]) {
+    stop(sprintf("%s did not converge", name))
+  }
+  if (!diag$post_check[[1]]) {
+    stop(sprintf(
+      "%s failed lavaan post-check (negative variances: %d; negative latent variances: %d; min variance: %.6f)",
+      name,
+      diag$negative_variances[[1]],
+      diag$negative_lv_variances[[1]],
+      diag$min_variance[[1]]
+    ))
+  }
+  if (diag$negative_variances[[1]] > 0) {
+    stop(sprintf("%s contains %d negative variance estimate(s)", name, diag$negative_variances[[1]]))
+  }
+  invisible(diag)
+}
+
 fit_row <- function(name, fit) {
+  out <- model_diagnostics(name, fit)
   fm <- fitMeasures(fit, c("chisq", "df", "cfi", "tli", "rmsea", "srmr", "aic", "bic"))
-  out <- data.frame(model = name, stringsAsFactors = FALSE)
   for (nm in names(fm)) {
     out[[nm]] <- as.numeric(unname(fm[[nm]]))
   }

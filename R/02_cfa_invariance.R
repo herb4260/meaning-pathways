@@ -40,10 +40,11 @@ latent_means <- "f_meaning_t1 ~ 0*1\nf_meaning_t2 ~ 1\nf_meaning_t3 ~ 1\nf_meani
 scalar <- paste(metric, scalar_intercepts, latent_means, sep = "\n")
 
 fits <- list(
-  configural = cfa(configural, data = dat, std.lv = TRUE, missing = "fiml", estimator = "MLR", meanstructure = TRUE),
-  metric = cfa(metric, data = dat, std.lv = TRUE, missing = "fiml", estimator = "MLR", meanstructure = TRUE),
-  scalar = cfa(scalar, data = dat, std.lv = TRUE, missing = "fiml", estimator = "MLR", meanstructure = TRUE)
+  configural = cfa(configural, data = dat, std.lv = FALSE, missing = "fiml", estimator = "MLR", meanstructure = TRUE),
+  metric = cfa(metric, data = dat, std.lv = FALSE, missing = "fiml", estimator = "MLR", meanstructure = TRUE),
+  scalar = cfa(scalar, data = dat, std.lv = FALSE, missing = "fiml", estimator = "MLR", meanstructure = TRUE)
 )
+invisible(Map(assert_model_ok, names(fits), fits))
 fit_table <- do.call(rbind, Map(fit_row, names(fits), fits))
 write.csv(fit_table, "results/measurement_invariance_fit.csv", row.names = FALSE)
 cat("Measurement invariance models complete. Compare changes in CFI/RMSEA as well as chi-square.\n")

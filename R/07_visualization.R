@@ -12,8 +12,9 @@ long <- do.call(rbind, lapply(1:4, function(t) data.frame(
 means <- aggregate(cbind(meaning, recovery, meaning_violation) ~ wave, data = long, FUN = function(x) mean(x, na.rm = TRUE))
 write.csv(means, "results/wave_means.csv", row.names = FALSE)
 
+plot_dat <- long[is.finite(long$recovery), , drop = FALSE]
 png("figures/recovery_trajectories.png", width = 1400, height = 900, res = 160)
-p <- ggplot(long, aes(wave, recovery, group = participant_id)) +
+p <- ggplot(plot_dat, aes(wave, recovery, group = participant_id)) +
   geom_line(alpha = .08) +
   stat_summary(aes(group = 1), fun = mean, geom = "line", linewidth = 1.3) +
   stat_summary(aes(group = 1), fun = mean, geom = "point", size = 2.5) +

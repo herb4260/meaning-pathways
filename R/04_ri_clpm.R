@@ -52,5 +52,7 @@ fit <- sem(
   estimator = "MLR",
   meanstructure = TRUE
 )
+assert_model_ok("meaning_violation_meaning_ri_clpm", fit)
 write.csv(fit_row("meaning_violation_meaning_ri_clpm", fit), "results/ri_clpm_fit.csv", row.names = FALSE)
 write_standardized_paths(fit, "results/ri_clpm_paths.csv")
+cat("RI-CLPM complete.\n")
